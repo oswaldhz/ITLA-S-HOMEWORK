@@ -1,6 +1,31 @@
 @LabApi_HostAddress = http://localhost:5162
+@BearerToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
 
-GET {{LabApi_HostAddress}}/weatherforecast/
+### Listar equipos
+GET {{LabApi_HostAddress}}/api/equipos
 Accept: application/json
+Authorization: Bearer {{BearerToken}}
 
-###
+### Crear un equipo
+POST {{LabApi_HostAddress}}/api/equipos
+Content-Type: application/json
+Authorization: Bearer {{BearerToken}}
+
+{
+  "nombre": "PC-10",
+  "numeroSerie": "SN100",
+  "marca": "Dell",
+  "modelo": "Optiplex",
+  "especificaciones": "Intel i5, 8GB RAM",
+  "ubicacion": "Laboratorio A",
+  "fechaAdquisicion": "2024-01-15"
+}
+
+### Reservar equipo
+POST {{LabApi_HostAddress}}/api/equipos/1/reservar
+Authorization: Bearer {{BearerToken}}
+
+### Obtener equipo por ID
+GET {{LabApi_HostAddress}}/api/equipos/1
+Accept: application/json
+Authorization: Bearer {{BearerToken}}

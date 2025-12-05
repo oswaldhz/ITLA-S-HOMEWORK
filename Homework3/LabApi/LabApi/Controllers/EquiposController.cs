@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using LaboratorioAPI.Interfaces;
 using LaboratorioAPI.DTOs;
 
@@ -9,116 +9,82 @@ namespace LaboratorioAPI.Controllers
     public class EquiposController : ControllerBase
     {
         private readonly IEquipoService _equipoService;
-        private readonly ILogger<EquiposController> _logger;
 
-        public EquiposController(IEquipoService equipoService, ILogger<EquiposController> logger)
+        public EquiposController(IEquipoService equipoService)
         {
             _equipoService = equipoService;
-            _logger = logger;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<EquipoDto>>> GetEquipos()
         {
-            try
-            {
-                var equipos = await _equipoService.GetAllAsync();
-                return Ok(equipos);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error al obtener equipos");
-                return StatusCode(500, "Error interno del servidor");
-            }
+            var equipos = await _equipoService.GetAllAsync();
+            return Ok(equipos);
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<EquipoDto>> GetEquipo(int id)
         {
-            try
+            var equipo = await _equipoService.GetByIdAsync(id);
+            if (equipo == null)
             {
-                var equipo = await _equipoService.GetByIdAsync(id);
-                if (equipo == null)
-                {
-                    return NotFound($"Equipo con ID {id} no encontrado");
-                }
-                return Ok(equipo);
+                return NotFound($"Equipo con ID {id} no encontrado");
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error al obtener equipo con ID {EquipoId}", id);
-                return StatusCode(500, "Error interno del servidor");
-            }
+
+            return Ok(equipo);
         }
 
         [HttpPost]
         public async Task<ActionResult<EquipoDto>> CreateEquipo(CreateEquipoDto createEquipoDto)
         {
-            try
+            if (!ModelState.IsValid)
             {
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState);
-                }
+                return ValidationProblem(ModelState);
+            }
 
-                var equipo = await _equipoService.CreateAsync(createEquipoDto);
-                return CreatedAtAction(nameof(GetEquipo), new { id = equipo.Id }, equipo);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error al crear equipo");
-                return StatusCode(500, "Error interno del servidor");
-            }
+            var equipo = await _equipoService.CreateAsync(createEquipoDto);
+            return CreatedAtAction(nameof(GetEquipo), new { id = equipo.Id }, equipo);
         }
 
         [HttpPut("{id}")]
         public async Task<ActionResult<EquipoDto>> UpdateEquipo(int id, UpdateEquipoDto updateEquipoDto)
         {
-            try
+            if (id != updateEquipoDto.Id)
             {
-                if (id != updateEquipoDto.Id)
-                {
-                    return BadRequest("ID del equipo no coincide");
-                }
-
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState);
-                }
-
-                var equipo = await _equipoService.UpdateAsync(updateEquipoDto);
-                if (equipo == null)
-                {
-                    return NotFound($"Equipo con ID {id} no encontrado");
-                }
-
-                return Ok(equipo);
+                return BadRequest("ID del equipo no coincide");
             }
-            catch (Exception ex)
+
+            if (!ModelState.IsValid)
             {
-                _logger.LogError(ex, "Error al actualizar equipo con ID {EquipoId}", id);
-                return StatusCode(500, "Error interno del servidor");
+                return ValidationProblem(ModelState);
             }
+
+            var equipo = await _equipoService.UpdateAsync(updateEquipoDto);
+            if (equipo == null)
+            {
+                return NotFound($"Equipo con ID {id} no encontrado");
+            }
+
+            return Ok(equipo);
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteEquipo(int id)
         {
-            try
+            var result = await _equipoService.DeleteAsync(id);
+            if (!result)
             {
-                var result = await _equipoService.DeleteAsync(id);
-                if (!result)
-                {
-                    return NotFound($"Equipo con ID {id} no encontrado");
-                }
+                return NotFound($"Equipo con ID {id} no encontrado");
+            }
 
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error al eliminar equipo con ID {EquipoId}", id);
-                return StatusCode(500, "Error interno del servidor");
-            }
+            return NoContent();
+        }
+
+        [HttpPost("{id}/reservar")]
+        public async Task<ActionResult<EquipoDto>> ReserveEquipo(int id)
+        {
+            var equipo = await _equipoService.ReserveAsync(id);
+            return Ok(equipo);
         }
     }
 }
