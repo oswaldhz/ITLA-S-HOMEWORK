@@ -14,6 +14,10 @@ public static class DependencyInjection
         services.AddDbContext<LabProjectDbContext>(options =>
             options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
         services.AddScoped<IWeatherForecastRepository, WeatherForecastRepository>();
+        services.AddScoped<IEquipoRepository, EquipoRepository>();
+        services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+        services.AddScoped<ISoftwareRepository, SoftwareRepository>();
+        services.AddScoped<IReservaRepository, ReservaRepository>();
 
         return services;
     }
