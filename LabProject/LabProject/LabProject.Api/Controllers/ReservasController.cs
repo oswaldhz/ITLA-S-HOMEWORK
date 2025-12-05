@@ -1,9 +1,11 @@
 using LabProject.Application.DTOs;
 using LabProject.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LabProject.Api.Controllers;
 
+[Authorize(Roles = "Admin,Asistente,Estudiante")]
 [ApiController]
 [Route("api/[controller]")]
 public class ReservasController : ControllerBase
@@ -40,6 +42,7 @@ public class ReservasController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = "Admin,Asistente,Estudiante")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     public async Task<ActionResult<ReservaDto>> Post([FromBody] CreateReservaRequest request, CancellationToken cancellationToken)
     {
@@ -49,6 +52,7 @@ public class ReservasController : ControllerBase
     }
 
     [HttpDelete("{id:int}")]
+    [Authorize(Roles = "Admin,Asistente")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)

@@ -174,6 +174,11 @@ namespace LabProject.Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
                     b.Property<string>("Rol")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -182,6 +187,32 @@ namespace LabProject.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Usuarios");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Email = "admin@lab.com",
+                            Nombre = "Administrador",
+                            PasswordHash = "PrP+ZrMeO00Q+nC1ytSccRIpSvauTkdqHEBRVdRaoSE=",
+                            Rol = "Admin"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Email = "asistente@lab.com",
+                            Nombre = "Asistente",
+                            PasswordHash = "byXtkMMD/6uPKOxneb4A6x3pWl6X2Jwl2uIPDXdHgm0=",
+                            Rol = "Asistente"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Email = "estudiante@lab.com",
+                            Nombre = "Estudiante",
+                            PasswordHash = "4Qrs5Ak+mcBVzb6uVWIW+0HMth2wP9/5gZYQyrS+VY8=",
+                            Rol = "Estudiante"
+                        });
                 });
 
             modelBuilder.Entity("LabProject.Domain.Models.ReservaSoftware", b =>

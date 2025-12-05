@@ -8,6 +8,7 @@ public class Usuario
     public string Nombre { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public string Rol { get; set; } = string.Empty;
+    public string PasswordHash { get; set; } = string.Empty;
 
     public void Validate()
     {
@@ -24,6 +25,11 @@ public class Usuario
         if (string.IsNullOrWhiteSpace(Rol))
         {
             throw new InvalidOperationException("El rol del usuario es requerido.");
+        }
+
+        if (string.IsNullOrWhiteSpace(PasswordHash))
+        {
+            throw new InvalidOperationException("La contraseña del usuario es requerida.");
         }
     }
 }

@@ -18,4 +18,7 @@ public class SaveUsuarioRequest
     [Required]
     [StringLength(50)]
     public string Rol { get; set; } = string.Empty;
+
+    [StringLength(200, MinimumLength = 6)]
+    public string? Password { get; set; }
 }

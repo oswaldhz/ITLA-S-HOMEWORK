@@ -1,9 +1,11 @@
 using LabProject.Application.DTOs;
 using LabProject.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LabProject.Api.Controllers;
 
+[Authorize(Roles = "Admin,Asistente,Estudiante")]
 [ApiController]
 [Route("api/[controller]")]
 public class SoftwareController : ControllerBase
@@ -38,6 +40,7 @@ public class SoftwareController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = "Admin,Asistente")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     public async Task<ActionResult<SoftwareDto>> Post([FromBody] SaveSoftwareRequest request, CancellationToken cancellationToken)
     {
@@ -46,6 +49,7 @@ public class SoftwareController : ControllerBase
     }
 
     [HttpPut("{id:int}")]
+    [Authorize(Roles = "Admin,Asistente")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<SoftwareDto>> Put(int id, [FromBody] SaveSoftwareRequest request, CancellationToken cancellationToken)
@@ -60,6 +64,7 @@ public class SoftwareController : ControllerBase
     }
 
     [HttpDelete("{id:int}")]
+    [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)

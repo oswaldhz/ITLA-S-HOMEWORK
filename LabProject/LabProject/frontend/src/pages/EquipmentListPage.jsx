@@ -8,11 +8,15 @@ import {
   Stack,
   Text,
   VStack,
+  Alert,
+  AlertIcon,
 } from '@chakra-ui/react';
 import { useEquipos } from '../hooks/useEquipos';
+import { useAuth } from '../hooks/useAuth';
 
 export function EquipmentListPage() {
   const { data: equipos, isLoading, error } = useEquipos();
+  const { isAuthenticated } = useAuth();
 
   const placeholder = [
     { id: 1, nombre: 'Microscopio Óptico', estado: 'Disponible', laboratorio: 'B-101' },
@@ -25,6 +29,12 @@ export function EquipmentListPage() {
   return (
     <Stack spacing={4}>
       <Heading size="lg">Equipos de laboratorio</Heading>
+      {!isAuthenticated && (
+        <Alert status="info" borderRadius="md">
+          <AlertIcon />
+          Inicia sesión para ver la disponibilidad en tiempo real y realizar reservas.
+        </Alert>
+      )}
       {isLoading && (
         <HStack>
           <Spinner />
