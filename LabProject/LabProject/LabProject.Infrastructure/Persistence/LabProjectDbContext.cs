@@ -1,3 +1,4 @@
+using LabProject.Domain.Entities;
 using LabProject.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,6 +15,7 @@ public class LabProjectDbContext : DbContext
     public DbSet<Software> Softwares => Set<Software>();
     public DbSet<Reserva> Reservas => Set<Reserva>();
     public DbSet<ReservaSoftware> ReservasSoftware => Set<ReservaSoftware>();
+    public DbSet<WeatherForecast> WeatherForecasts => Set<WeatherForecast>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

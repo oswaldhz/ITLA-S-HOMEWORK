@@ -27,6 +27,21 @@ namespace LabProject.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "WeatherForecasts",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Date = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    TemperatureC = table.Column<int>(type: "int", nullable: false),
+                    Summary = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_WeatherForecasts", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Softwares",
                 columns: table => new
                 {
@@ -165,6 +180,9 @@ namespace LabProject.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "Equipos");
+
+            migrationBuilder.DropTable(
+                name: "WeatherForecasts");
         }
     }
 }

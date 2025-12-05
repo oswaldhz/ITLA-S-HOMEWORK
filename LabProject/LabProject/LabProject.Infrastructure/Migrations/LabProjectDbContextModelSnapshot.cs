@@ -68,6 +68,28 @@ namespace LabProject.Infrastructure.Migrations
                         });
                 });
 
+            modelBuilder.Entity("LabProject.Domain.Entities.WeatherForecast", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Summary")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TemperatureC")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("WeatherForecasts");
+                });
+
             modelBuilder.Entity("LabProject.Domain.Models.Reserva", b =>
                 {
                     b.Property<int>("Id")
