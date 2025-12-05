@@ -94,5 +94,13 @@ namespace LaboratorioAPI.Repositories
         {
             return await Task.FromResult(_equipos.Any(e => e.Id == id && e.Activo));
         }
+
+        public async Task<bool> SerialExistsAsync(string numeroSerie, int? excludingId = null)
+        {
+            return await Task.FromResult(_equipos.Any(e =>
+                e.Activo &&
+                e.NumeroSerie.Equals(numeroSerie, StringComparison.OrdinalIgnoreCase) &&
+                (!excludingId.HasValue || e.Id != excludingId.Value)));
+        }
     }
 }

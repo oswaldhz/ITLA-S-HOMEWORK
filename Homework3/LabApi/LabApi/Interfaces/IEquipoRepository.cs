@@ -1,14 +1,15 @@
-﻿using LaboratorioAPI.Models;
+using LaboratorioAPI.Models;
 
 namespace LaboratorioAPI.Interfaces
 {
     public interface IEquipoRepository
     {
-        Task<Equipo> GetByIdAsync(int id);
+        Task<Equipo?> GetByIdAsync(int id);
         Task<IEnumerable<Equipo>> GetAllAsync();
         Task<Equipo> CreateAsync(Equipo equipo);
-        Task<Equipo> UpdateAsync(Equipo equipo);
+        Task<Equipo?> UpdateAsync(Equipo equipo);
         Task<bool> DeleteAsync(int id);
         Task<bool> ExistsAsync(int id);
+        Task<bool> SerialExistsAsync(string numeroSerie, int? excludingId = null);
     }
 }
