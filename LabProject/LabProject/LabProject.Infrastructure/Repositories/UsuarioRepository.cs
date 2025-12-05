@@ -47,6 +47,13 @@ public class UsuarioRepository : IUsuarioRepository
         return await _context.Usuarios.FindAsync(new object?[] { id }, cancellationToken);
     }
 
+    public async Task<Usuario?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
+    {
+        return await _context.Usuarios
+            .AsNoTracking()
+            .FirstOrDefaultAsync(u => u.Email == email, cancellationToken);
+    }
+
     public async Task UpdateAsync(Usuario usuario, CancellationToken cancellationToken = default)
     {
         _context.Usuarios.Update(usuario);

@@ -11,25 +11,34 @@ import {
   Textarea,
   useToast,
 } from '@chakra-ui/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { apiPost, endpoints } from '../api/client';
 import { useEquipos } from '../hooks/useEquipos';
 import { useUsuarios } from '../hooks/useUsuarios';
+import { useAuth } from '../hooks/useAuth';
 
 const today = new Date().toISOString().slice(0, 10);
 
 export function ReservationPage() {
   const { data: equipos } = useEquipos();
-  const { data: usuarios } = useUsuarios();
+  const { user } = useAuth();
+  const canManageUsers = user?.rol === 'Admin' || user?.rol === 'Asistente';
+  const { data: usuarios } = useUsuarios(canManageUsers);
   const toast = useToast();
   const [form, setForm] = useState({
     equipoId: '',
-    usuarioId: '',
+    usuarioId: user?.id || '',
     fecha: today,
     horaInicio: '09:00',
     horaFin: '10:00',
     motivo: '',
   });
+
+  useEffect(() => {
+    if (user?.id) {
+      setForm((prev) => ({ ...prev, usuarioId: user.id }));
+    }
+  }, [user]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -64,12 +73,11 @@ export function ReservationPage() {
         { id: 1, nombre: 'Microscopio Óptico' },
         { id: 2, nombre: 'Impresora 3D' },
       ];
-  const usuarioOptions = usuarios?.length
-    ? usuarios
-    : [
-        { id: 1, nombre: 'Ana López' },
-        { id: 2, nombre: 'Carlos Pérez' },
-      ];
+  const usuarioOptions = canManageUsers
+    ? usuarios || []
+    : user
+      ? [{ id: user.id, nombre: user.nombre }]
+      : [];
 
   return (
     <Stack spacing={4} as="form" onSubmit={handleSubmit}>

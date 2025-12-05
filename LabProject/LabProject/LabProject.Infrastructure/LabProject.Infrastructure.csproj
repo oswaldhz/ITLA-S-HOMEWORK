@@ -21,4 +21,7 @@
     <ProjectReference Include="..\LabProject.Application\LabProject.Application.csproj" />
     <ProjectReference Include="..\LabProject.Domain\LabProject.Domain.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
 </Project>

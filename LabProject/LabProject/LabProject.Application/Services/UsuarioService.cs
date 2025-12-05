@@ -1,5 +1,6 @@
 using LabProject.Application.DTOs;
 using LabProject.Application.Interfaces;
+using LabProject.Application.Security;
 using LabProject.Domain.Models;
 
 namespace LabProject.Application.Services;
@@ -19,8 +20,14 @@ public class UsuarioService : IUsuarioService
         {
             Nombre = request.Nombre,
             Email = request.Email,
-            Rol = request.Rol
+            Rol = request.Rol,
+            PasswordHash = PasswordHasher.Hash(request.Password ?? string.Empty)
         };
+
+        if (string.IsNullOrWhiteSpace(request.Password))
+        {
+            throw new InvalidOperationException("La contraseña es requerida para crear un usuario.");
+        }
 
         usuario.Validate();
 
@@ -39,6 +46,10 @@ public class UsuarioService : IUsuarioService
         usuario.Nombre = request.Nombre;
         usuario.Email = request.Email;
         usuario.Rol = request.Rol;
+        if (!string.IsNullOrWhiteSpace(request.Password))
+        {
+            usuario.PasswordHash = PasswordHasher.Hash(request.Password);
+        }
         usuario.Validate();
 
         await _usuarioRepository.UpdateAsync(usuario, cancellationToken);

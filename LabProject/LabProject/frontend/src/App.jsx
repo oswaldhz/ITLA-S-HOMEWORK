@@ -1,9 +1,11 @@
 import { Container } from '@chakra-ui/react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { NavBar } from './components/NavBar';
+import { ProtectedRoute } from './components/ProtectedRoute';
 import { AdminManagementPage } from './pages/AdminManagementPage';
 import { CalendarAgendaPage } from './pages/CalendarAgendaPage';
 import { EquipmentListPage } from './pages/EquipmentListPage';
+import { LoginPage } from './pages/LoginPage';
 import { ReservationPage } from './pages/ReservationPage';
 
 function App() {
@@ -13,9 +15,31 @@ function App() {
       <Container maxW="6xl" pb={8}>
         <Routes>
           <Route path="/" element={<EquipmentListPage />} />
-          <Route path="/reservas" element={<ReservationPage />} />
-          <Route path="/agenda" element={<CalendarAgendaPage />} />
-          <Route path="/admin" element={<AdminManagementPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route
+            path="/reservas"
+            element={
+              <ProtectedRoute roles={["Admin", "Asistente", "Estudiante"]}>
+                <ReservationPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/agenda"
+            element={
+              <ProtectedRoute roles={["Admin", "Asistente", "Estudiante"]}>
+                <CalendarAgendaPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute roles={["Admin"]}>
+                <AdminManagementPage />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </Container>
     </BrowserRouter>

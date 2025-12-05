@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { getToken } from './authStorage';
 
 export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -7,6 +8,7 @@ export const endpoints = {
   reservas: '/reservas',
   softwares: '/softwares',
   usuarios: '/usuarios',
+  login: '/auth/login',
 };
 
 export const api = axios.create({
@@ -16,10 +18,26 @@ export const api = axios.create({
   },
 });
 
+api.interceptors.request.use((config) => {
+  const token = getToken();
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 export async function apiFetch(path, options = {}) {
+  const token = getToken();
+  const authHeaders = token
+    ? {
+        Authorization: `Bearer ${token}`,
+      }
+    : {};
+
   const response = await fetch(`${API_BASE_URL}${path}`, {
     headers: {
       'Content-Type': 'application/json',
+      ...authHeaders,
       ...options.headers,
     },
     ...options,

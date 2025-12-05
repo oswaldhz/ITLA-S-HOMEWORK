@@ -3,6 +3,10 @@ import {
   Box,
   Button,
   Divider,
+  Alert,
+  AlertIcon,
+  AlertTitle,
+  AlertDescription,
   FormControl,
   FormLabel,
   Grid,
@@ -22,13 +26,27 @@ import { useState } from 'react';
 import { apiPost, endpoints } from '../api/client';
 import { useEquipos } from '../hooks/useEquipos';
 import { useSoftwares } from '../hooks/useSoftwares';
+import { useAuth } from '../hooks/useAuth';
 
 export function AdminManagementPage() {
   const toast = useToast();
   const { data: equipos } = useEquipos();
   const { data: softwares } = useSoftwares();
+  const { user } = useAuth();
   const [softwareForm, setSoftwareForm] = useState({ nombre: '', version: '' });
   const [equipoForm, setEquipoForm] = useState({ nombre: '', laboratorio: '' });
+
+  if (user?.rol !== 'Admin') {
+    return (
+      <Alert status="warning" borderRadius="md">
+        <AlertIcon />
+        <Box>
+          <AlertTitle>Acceso restringido</AlertTitle>
+          <AlertDescription>Solo los usuarios con rol Administrador pueden gestionar el inventario.</AlertDescription>
+        </Box>
+      </Alert>
+    );
+  }
 
   const handleSoftwareSubmit = async (event) => {
     event.preventDefault();

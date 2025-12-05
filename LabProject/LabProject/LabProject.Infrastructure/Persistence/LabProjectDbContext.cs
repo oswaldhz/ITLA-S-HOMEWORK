@@ -1,3 +1,4 @@
+using LabProject.Application.Security;
 using LabProject.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -32,6 +33,36 @@ public class LabProjectDbContext : DbContext
             entity.Property(u => u.Rol)
                 .IsRequired()
                 .HasMaxLength(50);
+
+            entity.Property(u => u.PasswordHash)
+                .IsRequired()
+                .HasMaxLength(500);
+
+            entity.HasData(
+                new Usuario
+                {
+                    Id = 1,
+                    Nombre = "Administrador",
+                    Email = "admin@lab.com",
+                    Rol = "Admin",
+                    PasswordHash = PasswordHasher.Hash("Admin123!")
+                },
+                new Usuario
+                {
+                    Id = 2,
+                    Nombre = "Asistente",
+                    Email = "asistente@lab.com",
+                    Rol = "Asistente",
+                    PasswordHash = PasswordHasher.Hash("Asistente123!")
+                },
+                new Usuario
+                {
+                    Id = 3,
+                    Nombre = "Estudiante",
+                    Email = "estudiante@lab.com",
+                    Rol = "Estudiante",
+                    PasswordHash = PasswordHasher.Hash("Estudiante123!")
+                });
         });
 
         modelBuilder.Entity<Equipo>(entity =>

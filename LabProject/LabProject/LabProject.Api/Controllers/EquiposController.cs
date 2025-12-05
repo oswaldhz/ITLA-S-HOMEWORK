@@ -1,9 +1,11 @@
 using LabProject.Application.DTOs;
 using LabProject.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LabProject.Api.Controllers;
 
+[Authorize(Roles = "Admin,Asistente,Estudiante")]
 [ApiController]
 [Route("api/[controller]")]
 public class EquiposController : ControllerBase
@@ -38,6 +40,7 @@ public class EquiposController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = "Admin,Asistente")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     public async Task<ActionResult<EquipoDto>> Post([FromBody] SaveEquipoRequest request, CancellationToken cancellationToken)
     {
@@ -46,6 +49,7 @@ public class EquiposController : ControllerBase
     }
 
     [HttpPut("{id:int}")]
+    [Authorize(Roles = "Admin,Asistente")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<EquipoDto>> Put(int id, [FromBody] SaveEquipoRequest request, CancellationToken cancellationToken)
@@ -60,6 +64,7 @@ public class EquiposController : ControllerBase
     }
 
     [HttpDelete("{id:int}")]
+    [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
