@@ -9,10 +9,12 @@ namespace LabProject.Api.Controllers;
 public class ReservasController : ControllerBase
 {
     private readonly IReservaService _reservaService;
+    private readonly IReservationService _reservationService;
 
-    public ReservasController(IReservaService reservaService)
+    public ReservasController(IReservaService reservaService, IReservationService reservationService)
     {
         _reservaService = reservaService;
+        _reservationService = reservationService;
     }
 
     [HttpGet]
@@ -41,7 +43,8 @@ public class ReservasController : ControllerBase
     [ProducesResponseType(StatusCodes.Status201Created)]
     public async Task<ActionResult<ReservaDto>> Post([FromBody] CreateReservaRequest request, CancellationToken cancellationToken)
     {
-        var creada = await _reservaService.CrearAsync(request, cancellationToken);
+        var validationResult = await _reservationService.ValidateAsync(request, cancellationToken);
+        var creada = await _reservaService.CrearAsync(request, validationResult, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = creada.Id }, creada);
     }
 
