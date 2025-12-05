@@ -10,17 +10,20 @@ public class ReservaService : IReservaService
     private readonly IUsuarioRepository _usuarioRepository;
     private readonly IEquipoRepository _equipoRepository;
     private readonly ISoftwareRepository _softwareRepository;
+    private readonly IReservationService _reservationService;
 
     public ReservaService(
         IReservaRepository reservaRepository,
         IUsuarioRepository usuarioRepository,
         IEquipoRepository equipoRepository,
-        ISoftwareRepository softwareRepository)
+        ISoftwareRepository softwareRepository,
+        IReservationService reservationService)
     {
         _reservaRepository = reservaRepository;
         _usuarioRepository = usuarioRepository;
         _equipoRepository = equipoRepository;
         _softwareRepository = softwareRepository;
+        _reservationService = reservationService;
     }
 
     public async Task<bool> CancelarAsync(int id, CancellationToken cancellationToken = default)
@@ -28,36 +31,25 @@ public class ReservaService : IReservaService
         return await _reservaRepository.DeleteAsync(id, cancellationToken);
     }
 
-    public async Task<ReservaDto> CrearAsync(CreateReservaRequest request, CancellationToken cancellationToken = default)
+    public async Task<ReservaDto> CrearAsync(CreateReservaRequest request, ReservationValidationResult? validationResult = null, CancellationToken cancellationToken = default)
     {
-        var usuario = await _usuarioRepository.GetByIdAsync(request.UsuarioId, cancellationToken)
-            ?? throw new InvalidOperationException("El usuario no existe.");
-        var equipo = await _equipoRepository.GetByIdAsync(request.EquipoId, cancellationToken)
-            ?? throw new InvalidOperationException("El equipo no existe.");
+        validationResult ??= await _reservationService.ValidateAsync(request, cancellationToken);
 
         var reserva = new Reserva
         {
-            UsuarioId = usuario.Id,
-            EquipoId = equipo.Id
+            UsuarioId = validationResult.Usuario.Id,
+            EquipoId = validationResult.Equipo.Id
         };
         reserva.Programar(request.FechaInicio, request.FechaFin);
+        reserva.ValidarDisponibilidad(validationResult.ReservasEnRango);
 
-        var reservasExistentes = await _reservaRepository.GetReservasDeEquipoEnRangoAsync(equipo.Id, request.FechaInicio, request.FechaFin, cancellationToken);
-        reserva.ValidarDisponibilidad(reservasExistentes);
-
-        var softwares = await _softwareRepository.GetByIdsAsync(request.SoftwareIds, cancellationToken);
-        if (request.SoftwareIds.Count != softwares.Count)
-        {
-            throw new InvalidOperationException("Uno o más programas solicitados no existen.");
-        }
-
-        foreach (var software in softwares)
+        foreach (var software in validationResult.Softwares)
         {
             reserva.AgregarSoftware(software);
         }
 
         var creada = await _reservaRepository.AddAsync(reserva, cancellationToken);
-        return Map(creada, usuario, equipo);
+        return Map(creada, validationResult.Usuario, validationResult.Equipo);
     }
 
     public async Task<IReadOnlyList<ReservaDto>> ObtenerPorFiltrosAsync(DateTime? fecha, int? equipoId, int? usuarioId, CancellationToken cancellationToken = default)
