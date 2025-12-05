@@ -39,10 +39,18 @@ public class ReservasController : ControllerBase
 
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<ReservaDto>> Post([FromBody] CreateReservaRequest request, CancellationToken cancellationToken)
     {
-        var creada = await _reservaService.CrearAsync(request, cancellationToken);
-        return CreatedAtAction(nameof(GetById), new { id = creada.Id }, creada);
+        try
+        {
+            var creada = await _reservaService.CrearAsync(request, cancellationToken);
+            return CreatedAtAction(nameof(GetById), new { id = creada.Id }, creada);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 
     [HttpDelete("{id:int}")]
