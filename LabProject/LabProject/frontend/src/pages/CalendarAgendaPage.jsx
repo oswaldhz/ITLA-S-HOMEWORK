@@ -12,20 +12,31 @@ export function CalendarAgendaPage() {
       ];
 
   return (
-    <Stack spacing={4}>
-      <Heading size="lg">Agenda del laboratorio</Heading>
-      <Text color="gray.600">Visualiza las reservas confirmadas y próximas sesiones.</Text>
-      <VStack align="stretch" spacing={3}>
+    <Stack spacing={6}>
+      <Box>
+        <Heading size="lg">Agenda del laboratorio</Heading>
+        <Text color="gray.600">Visualiza las reservas confirmadas y próximas sesiones.</Text>
+      </Box>
+
+      <VStack align="stretch" spacing={4} position="relative">
+        <Box position="absolute" top={0} left="18px" height="100%" width="2px" bg="blue.100" />
         {items.map((reserva, index) => (
-          <Box key={reserva.id || index} borderWidth="1px" borderRadius="md" p={4} boxShadow="xs">
-            <HStack justify="space-between">
-              <Heading size="md">{reserva.equipo}</Heading>
-              <Badge colorScheme="blue">{reserva.fecha}</Badge>
-            </HStack>
-            <Divider my={3} />
-            <Text fontWeight="medium">Horario: {reserva.horaInicio} - {reserva.horaFin}</Text>
-            <Text color="gray.600">Responsable: {reserva.usuario}</Text>
-          </Box>
+          <HStack key={reserva.id || index} align="flex-start" spacing={4}>
+            <Badge colorScheme="blue" minW="90px" textAlign="center" borderRadius="full" px={3} py={1} boxShadow="sm">
+              {reserva.fecha}
+            </Badge>
+            <Box flex={1} borderWidth="1px" borderRadius="lg" p={4} boxShadow="md" bg="white" _dark={{ bg: 'gray.800' }}>
+              <HStack justify="space-between" align="start">
+                <Heading size="md">{reserva.equipo}</Heading>
+                <Badge colorScheme="purple">{reserva.horaInicio} - {reserva.horaFin}</Badge>
+              </HStack>
+              <Divider my={3} />
+              <Text fontWeight="medium">Responsable: {reserva.usuario}</Text>
+              <Text color="gray.600" _dark={{ color: 'gray.300' }} fontSize="sm" mt={1}>
+                Asegúrate de liberar el equipo a tiempo para evitar conflictos en la siguiente sesión.
+              </Text>
+            </Box>
+          </HStack>
         ))}
       </VStack>
     </Stack>
