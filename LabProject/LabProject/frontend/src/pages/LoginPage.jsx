@@ -44,10 +44,14 @@ export function LoginPage() {
   };
 
   return (
-    <Box maxW="lg" mx="auto">
-      <Heading size="lg" mb={6} textAlign="center">
-        Acceso al laboratorio
-      </Heading>
+    <Box maxW="3xl" mx="auto" bg="white" _dark={{ bg: 'gray.800' }} p={8} borderRadius="2xl" boxShadow="xl">
+      <Stack spacing={6} align="center" textAlign="center" mb={4}>
+        <Heading size="lg">Acceso al laboratorio</Heading>
+        <Text color="gray.600" _dark={{ color: 'gray.300' }} maxW="2xl">
+          Ingresa con tu cuenta institucional para gestionar reservas, revisar la agenda y actualizar el inventario. La sesión se
+          mantiene segura con autenticación basada en tokens.
+        </Text>
+      </Stack>
       <Stack spacing={4} as="form" onSubmit={handleSubmit}>
         <FormControl isRequired>
           <FormLabel>Correo institucional</FormLabel>
@@ -57,11 +61,11 @@ export function LoginPage() {
           <FormLabel>Contraseña</FormLabel>
           <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Ingresa tu clave" />
         </FormControl>
-        <Button type="submit" colorScheme="blue">
+        <Button type="submit" colorScheme="blue" size="lg">
           Iniciar sesión
         </Button>
         {error && (
-          <Alert status="error">
+          <Alert status="error" borderRadius="md">
             <AlertIcon />
             <Box>
               <AlertTitle>Acceso denegado</AlertTitle>

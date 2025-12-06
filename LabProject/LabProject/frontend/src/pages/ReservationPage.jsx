@@ -80,55 +80,81 @@ export function ReservationPage() {
       : [];
 
   return (
-    <Stack spacing={4} as="form" onSubmit={handleSubmit}>
-      <Heading size="lg">Crear reserva</Heading>
-      <Text color="gray.600">Completa los datos para reservar un equipo de laboratorio.</Text>
-
-      <FormControl isRequired>
-        <FormLabel>Equipo</FormLabel>
-        <Select placeholder="Selecciona un equipo" name="equipoId" value={form.equipoId} onChange={handleChange}>
-          {equipoOptions.map((equipo) => (
-            <option key={equipo.id || equipo.nombre} value={equipo.id || equipo.nombre}>
-              {equipo.nombre}
-            </option>
-          ))}
-        </Select>
-      </FormControl>
-
-      <FormControl isRequired>
-        <FormLabel>Usuario</FormLabel>
-        <Select placeholder="Selecciona un usuario" name="usuarioId" value={form.usuarioId} onChange={handleChange}>
-          {usuarioOptions.map((usuario) => (
-            <option key={usuario.id || usuario.nombre} value={usuario.id || usuario.nombre}>
-              {usuario.nombre}
-            </option>
-          ))}
-        </Select>
-      </FormControl>
-
-      <FormControl isRequired>
-        <FormLabel>Fecha</FormLabel>
-        <Input type="date" name="fecha" value={form.fecha} min={today} onChange={handleChange} />
-      </FormControl>
-
-      <FormControl isRequired>
-        <FormLabel>Hora inicio</FormLabel>
-        <Input type="time" name="horaInicio" value={form.horaInicio} onChange={handleChange} />
-      </FormControl>
-
-      <FormControl isRequired>
-        <FormLabel>Hora fin</FormLabel>
-        <Input type="time" name="horaFin" value={form.horaFin} onChange={handleChange} />
-      </FormControl>
-
-      <FormControl>
-        <FormLabel>Motivo</FormLabel>
-        <Textarea name="motivo" value={form.motivo} onChange={handleChange} placeholder="Describe la práctica o sesión" />
-      </FormControl>
-
+    <Stack spacing={6}>
       <Box>
-        <Button type="submit" colorScheme="blue">Confirmar reserva</Button>
+        <Heading size="lg">Crear reserva</Heading>
+        <Text color="gray.600" maxW="2xl">
+          Selecciona el equipo, la fecha y el horario para tu práctica. El sistema evita horarios cruzados y valida que el equipo
+          esté disponible.
+        </Text>
       </Box>
+
+      <Grid templateColumns={{ base: '1fr', lg: '2fr 1fr' }} gap={6} alignItems="start">
+        <Stack spacing={4} as="form" onSubmit={handleSubmit} bg="white" _dark={{ bg: 'gray.800' }} p={5} borderRadius="xl" boxShadow="md">
+          <FormControl isRequired>
+            <FormLabel>Equipo</FormLabel>
+            <Select placeholder="Selecciona un equipo" name="equipoId" value={form.equipoId} onChange={handleChange}>
+              {equipoOptions.map((equipo) => (
+                <option key={equipo.id || equipo.nombre} value={equipo.id || equipo.nombre}>
+                  {equipo.nombre}
+                </option>
+              ))}
+            </Select>
+          </FormControl>
+
+          <FormControl isRequired>
+            <FormLabel>Usuario</FormLabel>
+            <Select placeholder="Selecciona un usuario" name="usuarioId" value={form.usuarioId} onChange={handleChange}>
+              {usuarioOptions.map((usuario) => (
+                <option key={usuario.id || usuario.nombre} value={usuario.id || usuario.nombre}>
+                  {usuario.nombre}
+                </option>
+              ))}
+            </Select>
+          </FormControl>
+
+          <Grid templateColumns={{ base: '1fr', sm: 'repeat(2, 1fr)' }} gap={4}>
+            <FormControl isRequired>
+              <FormLabel>Fecha</FormLabel>
+              <Input type="date" name="fecha" value={form.fecha} min={today} onChange={handleChange} />
+            </FormControl>
+            <FormControl isRequired>
+              <FormLabel>Hora inicio</FormLabel>
+              <Input type="time" name="horaInicio" value={form.horaInicio} onChange={handleChange} />
+            </FormControl>
+            <FormControl isRequired>
+              <FormLabel>Hora fin</FormLabel>
+              <Input type="time" name="horaFin" value={form.horaFin} onChange={handleChange} />
+            </FormControl>
+          </Grid>
+
+          <FormControl>
+            <FormLabel>Motivo</FormLabel>
+            <Textarea name="motivo" value={form.motivo} onChange={handleChange} placeholder="Describe la práctica o sesión" />
+          </FormControl>
+
+          <Box>
+            <Button type="submit" colorScheme="blue" px={6}>
+              Confirmar reserva
+            </Button>
+          </Box>
+        </Stack>
+
+        <Stack spacing={4} bg="blue.50" _dark={{ bg: 'gray.700' }} p={5} borderRadius="xl" boxShadow="md">
+          <Heading size="md">Consejos rápidos</Heading>
+          <Text color="gray.700" _dark={{ color: 'gray.200' }}>
+            • Verifica que el equipo tenga el software que necesitas.
+            <br />• Usa rangos de tiempo realistas para evitar rechazos.
+            <br />• Si necesitas varios equipos, crea reservas separadas para cada uno.
+          </Text>
+          <Box borderLeftWidth="4px" borderColor="blue.400" pl={3}>
+            <Text fontWeight="semibold">Recordatorio</Text>
+            <Text color="gray.600" _dark={{ color: 'gray.200' }}>
+              Puedes editar o cancelar reservas desde la agenda siempre que no se superpongan con otra sesión aprobada.
+            </Text>
+          </Box>
+        </Stack>
+      </Grid>
     </Stack>
   );
 }

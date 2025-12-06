@@ -1,4 +1,4 @@
-import { Flex, HStack, Heading, IconButton, Spacer, useColorMode, Button, Text } from '@chakra-ui/react';
+import { Flex, HStack, Heading, IconButton, Spacer, useColorMode, Button, Text, Box } from '@chakra-ui/react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { MoonIcon, SunIcon } from '@chakra-ui/icons';
 import { useAuth } from '../hooks/useAuth';
@@ -22,11 +22,36 @@ export function NavBar() {
   };
 
   return (
-    <Flex as="header" align="center" gap={6} padding={4} boxShadow="sm" mb={6} bg="gray.50" _dark={{ bg: 'gray.900' }}>
-      <Heading size="md">Laboratorio ITLA</Heading>
+    <Flex
+      as="header"
+      align="center"
+      gap={6}
+      padding={4}
+      boxShadow="md"
+      mb={8}
+      position="sticky"
+      top={0}
+      zIndex={10}
+      bgGradient={colorMode === 'light' ? 'linear(to-r, blue.50, white)' : 'linear(to-r, gray.900, gray.800)'}
+      borderBottomWidth="1px"
+      borderColor={colorMode === 'light' ? 'blue.100' : 'gray.700'}
+    >
+      <Box>
+        <Heading size="md">Laboratorio ITLA</Heading>
+        <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }}>
+          Reservas y gestión académica
+        </Text>
+      </Box>
       <HStack spacing={4} as="nav">
         {links.map((link) => (
-          <Button key={link.to} as={RouterLink} to={link.to} variant="ghost" fontWeight="semibold">
+          <Button
+            key={link.to}
+            as={RouterLink}
+            to={link.to}
+            variant="ghost"
+            fontWeight="semibold"
+            _hover={{ bg: colorMode === 'light' ? 'blue.50' : 'gray.700' }}
+          >
             {link.label}
           </Button>
         ))}
