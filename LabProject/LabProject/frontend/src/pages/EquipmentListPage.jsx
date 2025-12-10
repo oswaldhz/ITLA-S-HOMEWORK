@@ -10,22 +10,20 @@ import {
   VStack,
   Alert,
   AlertIcon,
+  Button,
+  Center,
 } from '@chakra-ui/react';
 import { useEquipos } from '../hooks/useEquipos';
 import { useAuth } from '../hooks/useAuth';
+import { Link as RouterLink } from 'react-router-dom';
 
 export function EquipmentListPage() {
   const { data: equipos, isLoading, error } = useEquipos();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
 
-  const placeholder = [
-    { id: 1, nombre: 'Microscopio Óptico', estado: 'Disponible', laboratorio: 'B-101' },
-    { id: 2, nombre: 'Impresora 3D', estado: 'En mantenimiento', laboratorio: 'B-201' },
-    { id: 3, nombre: 'Cámara Termográfica', estado: 'Reservado', laboratorio: 'B-305' },
-  ];
-
-  const items = equipos?.length ? equipos : placeholder;
+  const items = equipos || [];
   const disponibles = items.filter((equipo) => equipo.estado === 'Disponible').length;
+  const showEmptyState = !isLoading && !error && items.length === 0;
 
   return (
     <Stack spacing={6}>
@@ -74,35 +72,64 @@ export function EquipmentListPage() {
       )}
       {error && <Text color="red.500">{error}</Text>}
 
-      <Grid templateColumns={{ base: 'repeat(1, 1fr)', md: 'repeat(3, 1fr)' }} gap={4}>
-        {items.map((equipo) => (
-          <Box
-            key={equipo.id || equipo.nombre}
-            borderWidth="1px"
+      {showEmptyState ? (
+        <Center>
+          <Alert
+            status="info"
             borderRadius="lg"
-            p={4}
-            boxShadow="sm"
-            bg="white"
-            _dark={{ bg: 'gray.800' }}
+            alignItems="start"
+            bg="blue.50"
+            borderColor="blue.100"
+            maxW="3xl"
+            boxShadow="md"
           >
-            <VStack align="start" spacing={2}>
-              <Heading size="md">{equipo.nombre}</Heading>
-              <Badge
-                colorScheme={
-                  equipo.estado === 'Disponible' ? 'green' : equipo.estado === 'Reservado' ? 'yellow' : 'red'
-                }
-              >
-                {equipo.estado}
-              </Badge>
-              <Text fontWeight="medium">Laboratorio: {equipo.laboratorio || 'N/D'}</Text>
-              <Text color="gray.600" _dark={{ color: 'gray.400' }} fontSize="sm">
-                Mantén este equipo libre de horarios cruzados. Si requiere software especial, verifica su disponibilidad en la
-                sección de administración.
+            <AlertIcon />
+            <Box>
+              <Heading size="sm" mb={1} color="blue.900">
+                Aún no hay equipos registrados
+              </Heading>
+              <Text color="gray.700" mb={3}>
+                Agrega el inventario del laboratorio para comenzar a gestionar las reservas y el seguimiento de disponibilidad.
               </Text>
-            </VStack>
-          </Box>
-        ))}
-      </Grid>
+              {user?.rol === 'Admin' && (
+                <Button as={RouterLink} to="/admin" size="sm" colorScheme="blue">
+                  Ir al panel de administración
+                </Button>
+              )}
+            </Box>
+          </Alert>
+        </Center>
+      ) : (
+        <Grid templateColumns={{ base: 'repeat(1, 1fr)', md: 'repeat(3, 1fr)' }} gap={4}>
+          {items.map((equipo) => (
+            <Box
+              key={equipo.id || equipo.nombre}
+              borderWidth="1px"
+              borderRadius="lg"
+              p={4}
+              boxShadow="sm"
+              bg="white"
+              _dark={{ bg: 'gray.800' }}
+            >
+              <VStack align="start" spacing={2}>
+                <Heading size="md">{equipo.nombre}</Heading>
+                <Badge
+                  colorScheme={
+                    equipo.estado === 'Disponible' ? 'green' : equipo.estado === 'Reservado' ? 'yellow' : 'red'
+                  }
+                >
+                  {equipo.estado}
+                </Badge>
+                <Text fontWeight="medium">Laboratorio: {equipo.laboratorio || 'N/D'}</Text>
+                <Text color="gray.600" _dark={{ color: 'gray.400' }} fontSize="sm">
+                  Mantén este equipo libre de horarios cruzados. Si requiere software especial, verifica su disponibilidad en la
+                  sección de administración.
+                </Text>
+              </VStack>
+            </Box>
+          ))}
+        </Grid>
+      )}
     </Stack>
   );
 }

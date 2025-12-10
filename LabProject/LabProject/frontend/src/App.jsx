@@ -14,8 +14,15 @@ function App() {
       <NavBar />
       <Container maxW="6xl" pb={8}>
         <Routes>
-          <Route path="/" element={<EquipmentListPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute roles={["Admin", "Asistente", "Estudiante"]}>
+                <EquipmentListPage />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/reservas"
             element={
