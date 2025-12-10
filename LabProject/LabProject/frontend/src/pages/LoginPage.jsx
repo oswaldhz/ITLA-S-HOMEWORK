@@ -10,6 +10,7 @@ import {
   Heading,
   Input,
   Stack,
+  Text,
   useToast,
 } from '@chakra-ui/react';
 import { useState } from 'react';
