@@ -7,7 +7,7 @@ export const API_BASE_URL =
 export const endpoints = {
   equipos: '/equipos',
   reservas: '/reservas',
-  softwares: '/softwares',
+  softwares: '/Software',
   usuarios: '/usuarios',
   login: '/auth/login',
 };
