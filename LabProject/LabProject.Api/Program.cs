@@ -4,16 +4,18 @@ using LabProject.Application.Options;
 using LabProject.Infrastructure;
 using LabProject.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Capa de aplicación e infraestructura
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
-// Configuración JWT
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
 
 var jwtSettings = builder.Configuration.GetSection("Jwt").Get<JwtSettings>();
@@ -23,8 +25,7 @@ if (jwtSettings == null || string.IsNullOrWhiteSpace(jwtSettings.SecretKey))
     throw new InvalidOperationException("La configuración JWT es requerida para ejecutar la API.");
 }
 
-builder.Services
-    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
         options.TokenValidationParameters = new TokenValidationParameters
@@ -33,25 +34,49 @@ builder.Services
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = jwtSettings.Issuer,
-            ValidAudience = jwtSettings.Audience,
-            IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(jwtSettings.SecretKey)
-            )
+            ValidIssuer = jwtSettings?.Issuer,
+            ValidAudience = jwtSettings?.Audience,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings?.SecretKey ?? string.Empty))
         };
     });
 
 builder.Services.AddAuthorization();
 
 builder.Services.AddControllers();
-
-// Swagger básico (SIN tipos de Microsoft.OpenApi)
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
+Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions options1 = Options;
+
+builder.Services.AddSwaggerGen(options =>
+{
+    options1.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        Description = "Ingrese el token JWT de la sesión"
+    });
+
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
 
 var app = builder.Build();
 
-// Aplicar migraciones al iniciar
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<LabProjectDbContext>();
