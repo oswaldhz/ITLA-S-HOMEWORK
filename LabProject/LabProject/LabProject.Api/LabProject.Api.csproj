@@ -24,8 +24,4 @@
     <ProjectReference Include="..\LabProject.Infrastructure\LabProject.Infrastructure.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
-  </ItemGroup>
-
 </Project>
