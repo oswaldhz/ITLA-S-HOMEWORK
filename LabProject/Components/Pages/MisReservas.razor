@@ -1,0 +1,97 @@
+@page "/mis-reservas"
+@attribute [Authorize]
+
+<PageTitle>Mis reservas</PageTitle>
+
+<h1>Mis reservas</h1>
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="alert alert-danger" role="alert">@errorMessage</div>
+}
+
+@if (isLoading)
+{
+    <p>Cargando reservas...</p>
+}
+else if (reservas.Count == 0)
+{
+    <p>No tienes reservas registradas.</p>
+}
+else
+{
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Equipo</th>
+                <th>Fecha inicio</th>
+                <th>Fecha fin</th>
+                <th>Software</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var reserva in reservas)
+            {
+                <tr>
+                    <td>@reserva.EquipoIdentificador</td>
+                    <td>@reserva.FechaInicio.ToString("g")</td>
+                    <td>@reserva.FechaFin.ToString("g")</td>
+                    <td>@string.Join(", ", reserva.SoftwareIds)</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private readonly List<ReservaDto> reservas = new();
+    private bool isLoading = true;
+    private string? errorMessage;
+
+    [Inject]
+    private ApiClient ApiClient { get; set; } = default!;
+
+    [Inject]
+    private AuthState AuthState { get; set; } = default!;
+
+    [Inject]
+    private NavigationManager NavigationManager { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await AuthState.EnsureInitializedAsync();
+
+        if (!AuthState.IsAuthenticated || AuthState.Session is null)
+        {
+            NavigationManager.NavigateTo("/login", forceLoad: true);
+            return;
+        }
+
+        await CargarReservasAsync(AuthState.Session.User.Id);
+    }
+
+    private async Task CargarReservasAsync(int usuarioId)
+    {
+        isLoading = true;
+        errorMessage = null;
+
+        try
+        {
+            var result = await ApiClient.GetAsync<List<ReservaDto>>($"api/Reservas?usuarioId={usuarioId}");
+            reservas.Clear();
+
+            if (result is not null)
+            {
+                reservas.AddRange(result);
+            }
+        }
+        catch (HttpRequestException ex)
+        {
+            errorMessage = $"No se pudieron cargar las reservas: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}
