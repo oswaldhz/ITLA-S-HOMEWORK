@@ -1,12 +1,12 @@
 import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
+  AlertTitle,
   Badge,
   Box,
   Button,
   Divider,
-  Alert,
-  AlertIcon,
-  AlertTitle,
-  AlertDescription,
   FormControl,
   FormLabel,
   Grid,
@@ -23,18 +23,22 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import { useState } from 'react';
-import { apiPost, endpoints } from '../api/client';
+import { apiDelete, apiFetch, apiPost, apiPut, endpoints } from '../api/client';
 import { useEquipos } from '../hooks/useEquipos';
 import { useSoftwares } from '../hooks/useSoftwares';
 import { useAuth } from '../hooks/useAuth';
 
 export function AdminManagementPage() {
   const toast = useToast();
-  const { data: equipos } = useEquipos();
+  const { data: equipos, setData: setEquipos } = useEquipos();
   const { data: softwares, setData: setSoftwares } = useSoftwares();
   const { user } = useAuth();
   const [softwareForm, setSoftwareForm] = useState({ nombre: '', version: '', licencia: '' });
   const [equipoForm, setEquipoForm] = useState({ nombre: '', laboratorio: '' });
+  const [editingSoftwareId, setEditingSoftwareId] = useState(null);
+  const [editingEquipoId, setEditingEquipoId] = useState(null);
+  const [softwareEditForm, setSoftwareEditForm] = useState({ nombre: '', version: '', licencia: '' });
+  const [equipoEditForm, setEquipoEditForm] = useState({ nombre: '', laboratorio: '' });
 
   if (user?.rol !== 'Admin') {
     return (
@@ -79,6 +83,102 @@ export function AdminManagementPage() {
       });
     } catch (err) {
       toast({ title: 'Error', description: err.message, status: 'error', duration: 3000, isClosable: true });
+    }
+  };
+
+  const refreshSoftwares = async () => {
+    try {
+      const list = await apiFetch(endpoints.softwares);
+      setSoftwares(list || []);
+    } catch (err) {
+      toast({
+        title: 'No se pudo actualizar la lista de software',
+        description: err.message,
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
+
+  const refreshEquipos = async () => {
+    try {
+      const list = await apiFetch(endpoints.equipos);
+      setEquipos(list || []);
+    } catch (err) {
+      toast({
+        title: 'No se pudo actualizar la lista de equipos',
+        description: err.message,
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
+
+  const handleSoftwareUpdate = async (id) => {
+    try {
+      await apiPut(`${endpoints.softwares}/${id}`, softwareEditForm);
+      toast({
+        title: 'Software actualizado',
+        description: `${softwareEditForm.nombre} se actualizó correctamente`,
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
+      setEditingSoftwareId(null);
+      refreshSoftwares();
+    } catch (err) {
+      toast({ title: 'Error al actualizar', description: err.message, status: 'error', duration: 3000, isClosable: true });
+    }
+  };
+
+  const handleSoftwareDelete = async (id) => {
+    try {
+      await apiDelete(`${endpoints.softwares}/${id}`);
+      toast({
+        title: 'Software eliminado',
+        description: 'El registro fue eliminado del catálogo',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
+      refreshSoftwares();
+    } catch (err) {
+      toast({ title: 'Error al eliminar', description: err.message, status: 'error', duration: 3000, isClosable: true });
+    }
+  };
+
+  const handleEquipoUpdate = async (id) => {
+    try {
+      await apiPut(`${endpoints.equipos}/${id}`, equipoEditForm);
+      toast({
+        title: 'Equipo actualizado',
+        description: `${equipoEditForm.nombre} se actualizó correctamente`,
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
+      setEditingEquipoId(null);
+      refreshEquipos();
+    } catch (err) {
+      toast({ title: 'Error al actualizar', description: err.message, status: 'error', duration: 3000, isClosable: true });
+    }
+  };
+
+  const handleEquipoDelete = async (id) => {
+    try {
+      await apiDelete(`${endpoints.equipos}/${id}`);
+      toast({
+        title: 'Equipo eliminado',
+        description: 'El equipo se eliminó del inventario',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
+      refreshEquipos();
+    } catch (err) {
+      toast({ title: 'Error al eliminar', description: err.message, status: 'error', duration: 3000, isClosable: true });
     }
   };
 
@@ -151,15 +251,89 @@ export function AdminManagementPage() {
                   <Th>Nombre</Th>
                   <Th>Versión</Th>
                   <Th>Estado</Th>
+                  <Th textAlign="right">Acciones</Th>
                 </Tr>
               </Thead>
               <Tbody>
                 {softwareList.map((software) => (
                   <Tr key={software.id || software.nombre}>
-                    <Td>{software.nombre}</Td>
-                    <Td>{software.version || 'N/D'}</Td>
+                    <Td>
+                      {editingSoftwareId === software.id ? (
+                        <Input
+                          size="sm"
+                          value={softwareEditForm.nombre}
+                          onChange={(e) => setSoftwareEditForm({ ...softwareEditForm, nombre: e.target.value })}
+                        />
+                      ) : (
+                        software.nombre
+                      )}
+                    </Td>
+                    <Td>
+                      {editingSoftwareId === software.id ? (
+                        <Stack spacing={2}>
+                          <Input
+                            size="sm"
+                            placeholder="Versión"
+                            value={softwareEditForm.version}
+                            onChange={(e) => setSoftwareEditForm({ ...softwareEditForm, version: e.target.value })}
+                          />
+                          <Input
+                            size="sm"
+                            placeholder="Licencia"
+                            value={softwareEditForm.licencia}
+                            onChange={(e) => setSoftwareEditForm({ ...softwareEditForm, licencia: e.target.value })}
+                          />
+                        </Stack>
+                      ) : (
+                        <Stack spacing={0}>
+                          <Text>{software.version || 'N/D'}</Text>
+                          <Text fontSize="sm" color="gray.500">
+                            {software.licencia || 'Licencia no registrada'}
+                          </Text>
+                        </Stack>
+                      )}
+                    </Td>
                     <Td>
                       <Badge colorScheme={software.estado === 'Disponible' ? 'green' : 'yellow'}>{software.estado || 'Pendiente'}</Badge>
+                    </Td>
+                    <Td textAlign="right">
+                      {editingSoftwareId === software.id ? (
+                        <Stack direction="row" spacing={2} justify="flex-end">
+                          <Button size="sm" colorScheme="green" onClick={() => handleSoftwareUpdate(software.id)}>
+                            Guardar
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              setEditingSoftwareId(null);
+                              setSoftwareEditForm({ nombre: '', version: '', licencia: '' });
+                            }}
+                          >
+                            Cancelar
+                          </Button>
+                        </Stack>
+                      ) : (
+                        <Stack direction="row" spacing={2} justify="flex-end">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => {
+                              setEditingSoftwareId(software.id);
+                              setSoftwareEditForm({
+                                nombre: software.nombre || '',
+                                version: software.version || '',
+                                licencia: software.licencia || '',
+                              });
+                            }}
+                          >
+                            Editar
+                          </Button>
+                          <Button size="sm" colorScheme="red" variant="outline" onClick={() => handleSoftwareDelete(software.id)}>
+                            Eliminar
+                          </Button>
+                        </Stack>
+                      )}
                     </Td>
                   </Tr>
                 ))}
@@ -177,17 +351,73 @@ export function AdminManagementPage() {
                   <Th>Equipo</Th>
                   <Th>Laboratorio</Th>
                   <Th>Estado</Th>
+                  <Th textAlign="right">Acciones</Th>
                 </Tr>
               </Thead>
               <Tbody>
                 {equiposList.map((equipo) => (
                   <Tr key={equipo.id || equipo.nombre}>
-                    <Td>{equipo.nombre}</Td>
-                    <Td>{equipo.laboratorio || 'N/D'}</Td>
+                    <Td>
+                      {editingEquipoId === equipo.id ? (
+                        <Input
+                          size="sm"
+                          value={equipoEditForm.nombre}
+                          onChange={(e) => setEquipoEditForm({ ...equipoEditForm, nombre: e.target.value })}
+                        />
+                      ) : (
+                        equipo.nombre
+                      )}
+                    </Td>
+                    <Td>
+                      {editingEquipoId === equipo.id ? (
+                        <Input
+                          size="sm"
+                          value={equipoEditForm.laboratorio}
+                          onChange={(e) => setEquipoEditForm({ ...equipoEditForm, laboratorio: e.target.value })}
+                        />
+                      ) : (
+                        equipo.laboratorio || 'N/D'
+                      )}
+                    </Td>
                     <Td>
                       <Badge colorScheme={equipo.estado === 'Disponible' ? 'green' : equipo.estado === 'Reservado' ? 'yellow' : 'red'}>
                         {equipo.estado || 'Pendiente'}
                       </Badge>
+                    </Td>
+                    <Td textAlign="right">
+                      {editingEquipoId === equipo.id ? (
+                        <Stack direction="row" spacing={2} justify="flex-end">
+                          <Button size="sm" colorScheme="green" onClick={() => handleEquipoUpdate(equipo.id)}>
+                            Guardar
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              setEditingEquipoId(null);
+                              setEquipoEditForm({ nombre: '', laboratorio: '' });
+                            }}
+                          >
+                            Cancelar
+                          </Button>
+                        </Stack>
+                      ) : (
+                        <Stack direction="row" spacing={2} justify="flex-end">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => {
+                              setEditingEquipoId(equipo.id);
+                              setEquipoEditForm({ nombre: equipo.nombre || '', laboratorio: equipo.laboratorio || '' });
+                            }}
+                          >
+                            Editar
+                          </Button>
+                          <Button size="sm" colorScheme="red" variant="outline" onClick={() => handleEquipoDelete(equipo.id)}>
+                            Eliminar
+                          </Button>
+                        </Stack>
+                      )}
                     </Td>
                   </Tr>
                 ))}
