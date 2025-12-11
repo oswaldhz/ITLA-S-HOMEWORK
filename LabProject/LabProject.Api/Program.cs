@@ -23,6 +23,7 @@ if (jwtSettings == null || string.IsNullOrWhiteSpace(jwtSettings.SecretKey))
     throw new InvalidOperationException("La configuración JWT es requerida para ejecutar la API.");
 }
 
+// Autenticación con JWT
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -45,10 +46,6 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddControllers();
 
-// Swagger básico, SIN OpenApiSecurityScheme ni nada de Microsoft.OpenApi
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
 var app = builder.Build();
 
 // Aplicar migraciones al iniciar
@@ -60,8 +57,9 @@ using (var scope = app.Services.CreateScope())
 
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    // Swagger está desactivado completamente
+    // app.UseSwagger();
+    // app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();

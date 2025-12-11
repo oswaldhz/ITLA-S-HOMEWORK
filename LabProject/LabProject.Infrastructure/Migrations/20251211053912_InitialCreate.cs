@@ -1,7 +1,9 @@
-using System;
+﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
+
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
 
 namespace LabProject.Infrastructure.Migrations
 {
@@ -49,7 +51,8 @@ namespace LabProject.Infrastructure.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Nombre = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Email = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    Rol = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false)
+                    Rol = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    PasswordHash = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -126,6 +129,16 @@ namespace LabProject.Infrastructure.Migrations
                     { 2, "Free", "SQL Server Management Studio", "19.3" }
                 });
 
+            migrationBuilder.InsertData(
+                table: "Usuarios",
+                columns: new[] { "Id", "Email", "Nombre", "PasswordHash", "Rol" },
+                values: new object[,]
+                {
+                    { 1, "admin@lab.com", "Administrador", "PrP+ZrMeO00Q+nC1ytSccRIpSvauTkdqHEBRVdRaoSE=", "Admin" },
+                    { 2, "asistente@lab.com", "Asistente", "byXtkMMD/6uPKOxneb4A6x3pWl6X2Jwl2uIPDXdHgm0=", "Asistente" },
+                    { 3, "estudiante@lab.com", "Estudiante", "4Qrs5Ak+mcBVzb6uVWIW+0HMth2wP9/5gZYQyrS+VY8=", "Estudiante" }
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_Equipos_Identificador",
                 table: "Equipos",
@@ -161,10 +174,10 @@ namespace LabProject.Infrastructure.Migrations
                 name: "Softwares");
 
             migrationBuilder.DropTable(
-                name: "Usuarios");
+                name: "Equipos");
 
             migrationBuilder.DropTable(
-                name: "Equipos");
+                name: "Usuarios");
         }
     }
 }
