@@ -1,5 +1,7 @@
+using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using LabProject.Application.DTOs;
 
 namespace LabProject.Services;
 
@@ -14,6 +16,25 @@ public class ApiClient
     {
         _httpClientFactory = httpClientFactory;
         _authState = authState;
+    }
+
+    public async Task<AuthResponse?> LoginAsync(LoginRequest request, CancellationToken cancellationToken = default)
+    {
+        var client = _httpClientFactory.CreateClient(HttpClientName);
+        var response = await client.PostAsJsonAsync("api/Auth/login", request, cancellationToken);
+
+        if (response.IsSuccessStatusCode)
+        {
+            return await response.Content.ReadFromJsonAsync<AuthResponse>(cancellationToken: cancellationToken);
+        }
+
+        if (response.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            return null;
+        }
+
+        response.EnsureSuccessStatusCode();
+        return null;
     }
 
     public async Task<T?> GetAsync<T>(string requestUri, CancellationToken cancellationToken = default)
