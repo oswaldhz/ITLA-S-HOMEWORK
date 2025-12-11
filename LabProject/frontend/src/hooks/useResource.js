@@ -1,16 +1,24 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { apiFetch } from '../api/client';
-import { getToken } from '../api/authStorage';
 
 export function useResource(path, fallback = [], enabled = true) {
+  const fallbackRef = useRef(fallback);
   const [data, setData] = useState(fallback);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    fallbackRef.current = fallback;
+
+    if (!enabled) {
+      setData(fallback);
+    }
+  }, [fallback, enabled]);
+
+  useEffect(() => {
     if (!enabled) {
       setIsLoading(false);
-      setData(fallback);
+      setData(fallbackRef.current);
       return undefined;
     }
 
@@ -19,7 +27,7 @@ export function useResource(path, fallback = [], enabled = true) {
     apiFetch(path)
       .then((payload) => {
         if (isMounted) {
-          setData(payload || fallback);
+          setData(payload || fallbackRef.current);
         }
       })
       .catch((err) => {
@@ -36,7 +44,7 @@ export function useResource(path, fallback = [], enabled = true) {
     return () => {
       isMounted = false;
     };
-  }, [path, fallback, enabled, getToken()]);
+  }, [path, enabled]);
 
   return { data, isLoading, error, setData };
 }
