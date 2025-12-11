@@ -31,9 +31,9 @@ import { useAuth } from '../hooks/useAuth';
 export function AdminManagementPage() {
   const toast = useToast();
   const { data: equipos } = useEquipos();
-  const { data: softwares } = useSoftwares();
+  const { data: softwares, setData: setSoftwares } = useSoftwares();
   const { user } = useAuth();
-  const [softwareForm, setSoftwareForm] = useState({ nombre: '', version: '' });
+  const [softwareForm, setSoftwareForm] = useState({ nombre: '', version: '', licencia: '' });
   const [equipoForm, setEquipoForm] = useState({ nombre: '', laboratorio: '' });
 
   if (user?.rol !== 'Admin') {
@@ -51,7 +51,9 @@ export function AdminManagementPage() {
   const handleSoftwareSubmit = async (event) => {
     event.preventDefault();
     try {
-      await apiPost(endpoints.softwares, softwareForm);
+      const createdSoftware = await apiPost(endpoints.softwares, softwareForm);
+      setSoftwares((prev) => [...(prev || []), createdSoftware || softwareForm]);
+      setSoftwareForm({ nombre: '', version: '', licencia: '' });
       toast({
         title: 'Software creado',
         description: `${softwareForm.nombre} agregado al catálogo`,
@@ -114,6 +116,10 @@ export function AdminManagementPage() {
             <FormControl>
               <FormLabel>Versión</FormLabel>
               <Input value={softwareForm.version} onChange={(e) => setSoftwareForm({ ...softwareForm, version: e.target.value })} />
+            </FormControl>
+            <FormControl isRequired>
+              <FormLabel>Licencia</FormLabel>
+              <Input value={softwareForm.licencia} onChange={(e) => setSoftwareForm({ ...softwareForm, licencia: e.target.value })} />
             </FormControl>
             <Button type="submit" colorScheme="blue">Guardar software</Button>
           </Stack>
