@@ -1,8 +1,8 @@
 import axios from 'axios';
 import { getToken } from './authStorage';
 
-export const API_BASE_URL =
-  import.meta.env.VITE_API_URL || 'https://localhost:7095/api';
+const envApiUrl = import.meta.env.VITE_API_URL || 'https://localhost:7095/api';
+export const API_BASE_URL = envApiUrl.replace(/\/$/, '');
 
 export const endpoints = {
   equipos: '/equipos',
@@ -35,21 +35,30 @@ export async function apiFetch(path, options = {}) {
       }
     : {};
 
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    headers: {
-      'Content-Type': 'application/json',
-      ...authHeaders,
-      ...options.headers,
-    },
-    ...options,
-  });
+  try {
+    const response = await fetch(`${API_BASE_URL}${path}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        ...authHeaders,
+        ...options.headers,
+      },
+      ...options,
+    });
 
-  if (!response.ok) {
-    const message = await response.text();
-    throw new Error(message || 'Solicitud fallida');
+    if (!response.ok) {
+      const message = await response.text();
+      throw new Error(message || 'Solicitud fallida');
+    }
+
+    return response.status === 204 ? null : response.json();
+  } catch (error) {
+    const friendlyMessage =
+      error?.message === 'Failed to fetch'
+        ? `No se pudo conectar con la API en ${API_BASE_URL}. Asegúrate de que el backend esté en ejecución.`
+        : error?.message || 'Solicitud fallida';
+
+    throw new Error(friendlyMessage);
   }
-
-  return response.status === 204 ? null : response.json();
 }
 
 export async function apiPost(path, payload) {
