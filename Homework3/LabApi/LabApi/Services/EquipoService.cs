@@ -165,7 +165,9 @@ namespace LaboratorioAPI.Services
                 Marca = equipo.Marca,
                 Modelo = equipo.Modelo,
                 Estado = equipo.Estado,
-                Especificaciones = equipo.Especificaciones,
+                Especificaciones = string.IsNullOrWhiteSpace(equipo.Especificaciones)
+                    ? "Pendiente de registrar"
+                    : equipo.Especificaciones,
                 Ubicacion = equipo.Ubicacion,
                 FechaAdquisicion = equipo.FechaAdquisicion,
                 UltimoMantenimiento = equipo.UltimoMantenimiento,

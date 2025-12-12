@@ -1,7 +1,9 @@
+using LaboratorioAPI.Data;
 using LaboratorioAPI.Interfaces;
 using LaboratorioAPI.Repositories;
 using LaboratorioAPI.Services;
 using LaboratorioAPI.Middleware;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Serilog;
 
@@ -65,12 +67,21 @@ builder.Services.AddCors(options =>
     });
 });
 
+builder.Services.AddDbContext<LaboratorioContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("LaboratorioDb")));
+
 // Dependency Injection
 builder.Services.AddScoped<IEquipoRepository, EquipoRepository>();
 builder.Services.AddScoped<IEquipoService, EquipoService>();
 builder.Services.AddSingleton<GlobalExceptionHandlingMiddleware>();
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<LaboratorioContext>();
+    dbContext.Database.Migrate();
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
