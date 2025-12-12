@@ -73,7 +73,9 @@ export function AdminManagementPage() {
   const handleEquipoSubmit = async (event) => {
     event.preventDefault();
     try {
-      await apiPost(endpoints.equipos, equipoForm);
+      const createdEquipo = await apiPost(endpoints.equipos, equipoForm);
+      setEquipos((prev) => [...(prev || []), createdEquipo || equipoForm]);
+      setEquipoForm({ nombre: '', laboratorio: '' });
       toast({
         title: 'Equipo registrado',
         description: `${equipoForm.nombre} está disponible para reservas`,
