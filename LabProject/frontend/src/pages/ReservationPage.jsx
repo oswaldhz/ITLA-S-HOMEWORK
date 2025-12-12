@@ -33,6 +33,7 @@ export function ReservationPage() {
     horaInicio: '09:00',
     horaFin: '10:00',
     motivo: '',
+    softwareIds: [],
   });
 
   useEffect(() => {
@@ -48,8 +49,31 @@ export function ReservationPage() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+
+    const fechaInicio = new Date(`${form.fecha}T${form.horaInicio}`);
+    const fechaFin = new Date(`${form.fecha}T${form.horaFin}`);
+
+    if (fechaFin <= fechaInicio) {
+      toast({
+        title: 'Rango de tiempo inválido',
+        description: 'La hora de fin debe ser posterior a la hora de inicio.',
+        status: 'error',
+        duration: 4000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    const payload = {
+      equipoId: Number(form.equipoId),
+      usuarioId: Number(form.usuarioId),
+      fechaInicio: fechaInicio.toISOString(),
+      fechaFin: fechaFin.toISOString(),
+      softwareIds: (form.softwareIds || []).map((id) => Number(id)),
+    };
+
     try {
-      await apiPost(endpoints.reservas, form);
+      await apiPost(endpoints.reservas, payload);
       toast({
         title: 'Reserva creada',
         description: 'La solicitud fue enviada al laboratorio.',
