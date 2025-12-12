@@ -30,8 +30,8 @@ import { useAuth } from '../hooks/useAuth';
 
 export function AdminManagementPage() {
   const toast = useToast();
-  const { data: equipos, setData: setEquipos } = useEquipos();
-  const { data: softwares, setData: setSoftwares } = useSoftwares();
+  const { data: equipos, setData: setEquipos, isLoading: isLoadingEquipos } = useEquipos();
+  const { data: softwares, setData: setSoftwares, isLoading: isLoadingSoftwares } = useSoftwares();
   const { user } = useAuth();
   const [softwareForm, setSoftwareForm] = useState({ nombre: '', version: '', licencia: '' });
   const [equipoForm, setEquipoForm] = useState({ nombre: '', laboratorio: '' });
@@ -184,20 +184,6 @@ export function AdminManagementPage() {
     }
   };
 
-  const softwareList = softwares?.length
-    ? softwares
-    : [
-        { id: 1, nombre: 'AutoCAD', version: '2023', estado: 'Disponible' },
-        { id: 2, nombre: 'MATLAB', version: 'R2024a', estado: 'Actualizando' },
-      ];
-
-  const equiposList = equipos?.length
-    ? equipos
-    : [
-        { id: 1, nombre: 'Microscopio Óptico', laboratorio: 'B-101', estado: 'Disponible' },
-        { id: 2, nombre: 'Cámara Termográfica', laboratorio: 'B-305', estado: 'Reservado' },
-      ];
-
   return (
     <Stack spacing={8}>
       <Box p={6} borderRadius="2xl" bgGradient="linear(to-r, teal.500, green.400)" color="white" boxShadow="lg">
@@ -257,88 +243,110 @@ export function AdminManagementPage() {
                 </Tr>
               </Thead>
               <Tbody>
-                {softwareList.map((software) => (
-                  <Tr key={software.id || software.nombre}>
-                    <Td>
-                      {editingSoftwareId === software.id ? (
-                        <Input
-                          size="sm"
-                          value={softwareEditForm.nombre}
-                          onChange={(e) => setSoftwareEditForm({ ...softwareEditForm, nombre: e.target.value })}
-                        />
-                      ) : (
-                        software.nombre
-                      )}
-                    </Td>
-                    <Td>
-                      {editingSoftwareId === software.id ? (
-                        <Stack spacing={2}>
-                          <Input
-                            size="sm"
-                            placeholder="Versión"
-                            value={softwareEditForm.version}
-                            onChange={(e) => setSoftwareEditForm({ ...softwareEditForm, version: e.target.value })}
-                          />
-                          <Input
-                            size="sm"
-                            placeholder="Licencia"
-                            value={softwareEditForm.licencia}
-                            onChange={(e) => setSoftwareEditForm({ ...softwareEditForm, licencia: e.target.value })}
-                          />
-                        </Stack>
-                      ) : (
-                        <Stack spacing={0}>
-                          <Text>{software.version || 'N/D'}</Text>
-                          <Text fontSize="sm" color="gray.500">
-                            {software.licencia || 'Licencia no registrada'}
-                          </Text>
-                        </Stack>
-                      )}
-                    </Td>
-                    <Td>
-                      <Badge colorScheme={software.estado === 'Disponible' ? 'green' : 'yellow'}>{software.estado || 'Pendiente'}</Badge>
-                    </Td>
-                    <Td textAlign="right">
-                      {editingSoftwareId === software.id ? (
-                        <Stack direction="row" spacing={2} justify="flex-end">
-                          <Button size="sm" colorScheme="green" onClick={() => handleSoftwareUpdate(software.id)}>
-                            Guardar
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => {
-                              setEditingSoftwareId(null);
-                              setSoftwareEditForm({ nombre: '', version: '', licencia: '' });
-                            }}
-                          >
-                            Cancelar
-                          </Button>
-                        </Stack>
-                      ) : (
-                        <Stack direction="row" spacing={2} justify="flex-end">
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => {
-                              setEditingSoftwareId(software.id);
-                              setSoftwareEditForm({
-                                nombre: software.nombre || '',
-                                version: software.version || '',
-                                licencia: software.licencia || '',
-                              });
-                            }}
-                          >
-                            Editar
-                          </Button>
-                          <Button size="sm" colorScheme="red" variant="outline" onClick={() => handleSoftwareDelete(software.id)}>
-                            Eliminar
-                          </Button>
-                        </Stack>
-                      )}
+                {isLoadingSoftwares ? (
+                  <Tr>
+                    <Td colSpan={4}>
+                      <Text color="gray.500">Cargando softwares...</Text>
                     </Td>
                   </Tr>
-                ))}
+                ) : softwares?.length ? (
+                  softwares.map((software) => (
+                    <Tr key={software.id || software.nombre}>
+                      <Td>
+                        {editingSoftwareId === software.id ? (
+                          <Input
+                            size="sm"
+                            value={softwareEditForm.nombre}
+                            onChange={(e) => setSoftwareEditForm({ ...softwareEditForm, nombre: e.target.value })}
+                          />
+                        ) : (
+                          software.nombre
+                        )}
+                      </Td>
+                      <Td>
+                        {editingSoftwareId === software.id ? (
+                          <Stack spacing={2}>
+                            <Input
+                              size="sm"
+                              placeholder="Versión"
+                              value={softwareEditForm.version}
+                              onChange={(e) => setSoftwareEditForm({ ...softwareEditForm, version: e.target.value })}
+                            />
+                            <Input
+                              size="sm"
+                              placeholder="Licencia"
+                              value={softwareEditForm.licencia}
+                              onChange={(e) => setSoftwareEditForm({ ...softwareEditForm, licencia: e.target.value })}
+                            />
+                          </Stack>
+                        ) : (
+                          <Stack spacing={0}>
+                            <Text>{software.version || 'N/D'}</Text>
+                            <Text fontSize="sm" color="gray.500">
+                              {software.licencia || 'Licencia no registrada'}
+                            </Text>
+                          </Stack>
+                        )}
+                      </Td>
+                      <Td>
+                        <Badge colorScheme={software.estado === 'Disponible' ? 'green' : 'yellow'}>
+                          {software.estado || 'Pendiente'}
+                        </Badge>
+                      </Td>
+                      <Td textAlign="right">
+                        {editingSoftwareId === software.id ? (
+                          <Stack direction="row" spacing={2} justify="flex-end">
+                            <Button size="sm" colorScheme="green" onClick={() => handleSoftwareUpdate(software.id)}>
+                              Guardar
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => {
+                                setEditingSoftwareId(null);
+                                setSoftwareEditForm({ nombre: '', version: '', licencia: '' });
+                              }}
+                            >
+                              Cancelar
+                            </Button>
+                          </Stack>
+                        ) : (
+                          <Stack direction="row" spacing={2} justify="flex-end">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => {
+                                setEditingSoftwareId(software.id);
+                                setSoftwareEditForm({
+                                  nombre: software.nombre || '',
+                                  version: software.version || '',
+                                  licencia: software.licencia || '',
+                                });
+                              }}
+                            >
+                              Editar
+                            </Button>
+                            <Button
+                              size="sm"
+                              colorScheme="red"
+                              variant="outline"
+                              onClick={() => handleSoftwareDelete(software.id)}
+                              isDisabled={!software.id}
+                            >
+                              Eliminar
+                            </Button>
+                          </Stack>
+                        )}
+                      </Td>
+                    </Tr>
+                  ))
+                ) : (
+                  <Tr>
+                    <Td colSpan={4}>
+                      <Text color="gray.500">No hay softwares registrados.</Text>
+                    </Td>
+                  </Tr>
+                )}
               </Tbody>
             </Table>
           </Box>
@@ -357,72 +365,92 @@ export function AdminManagementPage() {
                 </Tr>
               </Thead>
               <Tbody>
-                {equiposList.map((equipo) => (
-                  <Tr key={equipo.id || equipo.nombre}>
-                    <Td>
-                      {editingEquipoId === equipo.id ? (
-                        <Input
-                          size="sm"
-                          value={equipoEditForm.nombre}
-                          onChange={(e) => setEquipoEditForm({ ...equipoEditForm, nombre: e.target.value })}
-                        />
-                      ) : (
-                        equipo.nombre
-                      )}
-                    </Td>
-                    <Td>
-                      {editingEquipoId === equipo.id ? (
-                        <Input
-                          size="sm"
-                          value={equipoEditForm.laboratorio}
-                          onChange={(e) => setEquipoEditForm({ ...equipoEditForm, laboratorio: e.target.value })}
-                        />
-                      ) : (
-                        equipo.laboratorio || 'N/D'
-                      )}
-                    </Td>
-                    <Td>
-                      <Badge colorScheme={equipo.estado === 'Disponible' ? 'green' : equipo.estado === 'Reservado' ? 'yellow' : 'red'}>
-                        {equipo.estado || 'Pendiente'}
-                      </Badge>
-                    </Td>
-                    <Td textAlign="right">
-                      {editingEquipoId === equipo.id ? (
-                        <Stack direction="row" spacing={2} justify="flex-end">
-                          <Button size="sm" colorScheme="green" onClick={() => handleEquipoUpdate(equipo.id)}>
-                            Guardar
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => {
-                              setEditingEquipoId(null);
-                              setEquipoEditForm({ nombre: '', laboratorio: '' });
-                            }}
-                          >
-                            Cancelar
-                          </Button>
-                        </Stack>
-                      ) : (
-                        <Stack direction="row" spacing={2} justify="flex-end">
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => {
-                              setEditingEquipoId(equipo.id);
-                              setEquipoEditForm({ nombre: equipo.nombre || '', laboratorio: equipo.laboratorio || '' });
-                            }}
-                          >
-                            Editar
-                          </Button>
-                          <Button size="sm" colorScheme="red" variant="outline" onClick={() => handleEquipoDelete(equipo.id)}>
-                            Eliminar
-                          </Button>
-                        </Stack>
-                      )}
+                {isLoadingEquipos ? (
+                  <Tr>
+                    <Td colSpan={4}>
+                      <Text color="gray.500">Cargando equipos...</Text>
                     </Td>
                   </Tr>
-                ))}
+                ) : equipos?.length ? (
+                  equipos.map((equipo) => (
+                    <Tr key={equipo.id || equipo.nombre}>
+                      <Td>
+                        {editingEquipoId === equipo.id ? (
+                          <Input
+                            size="sm"
+                            value={equipoEditForm.nombre}
+                            onChange={(e) => setEquipoEditForm({ ...equipoEditForm, nombre: e.target.value })}
+                          />
+                        ) : (
+                          equipo.nombre
+                        )}
+                      </Td>
+                      <Td>
+                        {editingEquipoId === equipo.id ? (
+                          <Input
+                            size="sm"
+                            value={equipoEditForm.laboratorio}
+                            onChange={(e) => setEquipoEditForm({ ...equipoEditForm, laboratorio: e.target.value })}
+                          />
+                        ) : (
+                          equipo.laboratorio || 'N/D'
+                        )}
+                      </Td>
+                      <Td>
+                        <Badge colorScheme={equipo.estado === 'Disponible' ? 'green' : equipo.estado === 'Reservado' ? 'yellow' : 'red'}>
+                          {equipo.estado || 'Pendiente'}
+                        </Badge>
+                      </Td>
+                      <Td textAlign="right">
+                        {editingEquipoId === equipo.id ? (
+                          <Stack direction="row" spacing={2} justify="flex-end">
+                            <Button size="sm" colorScheme="green" onClick={() => handleEquipoUpdate(equipo.id)}>
+                              Guardar
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => {
+                                setEditingEquipoId(null);
+                                setEquipoEditForm({ nombre: '', laboratorio: '' });
+                              }}
+                            >
+                              Cancelar
+                            </Button>
+                          </Stack>
+                        ) : (
+                          <Stack direction="row" spacing={2} justify="flex-end">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => {
+                                setEditingEquipoId(equipo.id);
+                                setEquipoEditForm({ nombre: equipo.nombre || '', laboratorio: equipo.laboratorio || '' });
+                              }}
+                            >
+                              Editar
+                            </Button>
+                            <Button
+                              size="sm"
+                              colorScheme="red"
+                              variant="outline"
+                              onClick={() => handleEquipoDelete(equipo.id)}
+                              isDisabled={!equipo.id}
+                            >
+                              Eliminar
+                            </Button>
+                          </Stack>
+                        )}
+                      </Td>
+                    </Tr>
+                  ))
+                ) : (
+                  <Tr>
+                    <Td colSpan={4}>
+                      <Text color="gray.500">No hay equipos registrados.</Text>
+                    </Td>
+                  </Tr>
+                )}
               </Tbody>
             </Table>
           </Box>
