@@ -243,7 +243,7 @@ export function AdminManagementPage() {
         </Box>
       </Grid>
 
-      <Grid templateColumns={{ base: '1fr', lg: '2fr 1fr' }} gap={6} alignItems="start">
+      <Grid templateColumns="1fr" gap={6} alignItems="start">
         <Stack spacing={6} bg="white" _dark={{ bg: 'gray.800' }} p={4} borderRadius="lg" boxShadow="md">
           <Box>
             <Heading size="md" mb={3}>Catálogo de software</Heading>
@@ -425,21 +425,6 @@ export function AdminManagementPage() {
                 ))}
               </Tbody>
             </Table>
-          </Box>
-        </Stack>
-
-        <Stack spacing={3} p={4} borderRadius="lg" bg="teal.50" _dark={{ bg: 'gray.700' }} boxShadow="md">
-          <Heading size="md">Acceso a la base de datos</Heading>
-          <Text color="gray.700" _dark={{ color: 'gray.200' }}>
-            La API usa la cadena <strong>DefaultConnection</strong> definida en <code>LabProject.Api/appsettings.json</code>. Puedes
-            actualizarla para apuntar a tu servidor SQL o sobreescribirla con la variable de entorno
-            <code>ConnectionStrings__DefaultConnection</code> antes de iniciar la API.
-          </Text>
-          <Box borderLeftWidth="4px" borderColor="teal.400" pl={3}>
-            <Text fontWeight="semibold">Tip de despliegue</Text>
-            <Text color="gray.700" _dark={{ color: 'gray.100' }}>
-              Mantén una copia de seguridad del archivo de configuración y evita exponer credenciales sensibles en el repositorio.
-            </Text>
           </Box>
         </Stack>
       </Grid>
