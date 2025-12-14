@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <AssemblyName>LabProject.Web</AssemblyName>
+    <RootNamespace>LabProject</RootNamespace>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="LabProject.Application/LabProject.Application.csproj" />
+  </ItemGroup>
+
+  <!--
+    IMPORTANT:
+    This project lives at the solution root. By default, SDK-style projects include all *.cs files recursively.
+    That caused files from other projects (Api/Application/Domain/Infrastructure) to be compiled into this project
+    while also being referenced via ProjectReference, producing type conflicts and build failures.
+    We explicitly exclude those folders from this project's Compile items.
+  -->
+  <ItemGroup>
+    <Compile Remove="LabProject.Api\**\*.cs" />
+    <Compile Remove="LabProject.Application\**\*.cs" />
+    <Compile Remove="LabProject.Domain\**\*.cs" />
+    <Compile Remove="LabProject.Infrastructure\**\*.cs" />
+  </ItemGroup>
+
+</Project>

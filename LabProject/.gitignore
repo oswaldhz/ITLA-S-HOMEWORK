@@ -1,0 +1,19 @@
+# Build artifacts
+**/bin/
+**/obj/
+**/*.user
+**/*.suo
+**/*.cache
+**/*.log
+
+# Visual Studio
+.vs/
+
+# Node
+**/node_modules/
+**/dist/
+**/.eslintcache
+
+# OS
+.DS_Store
+Thumbs.db

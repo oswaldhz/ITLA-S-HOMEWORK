@@ -1,0 +1,93 @@
+@implements IDisposable
+
+<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">LabProject</a>
+    </div>
+</div>
+
+<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+
+<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
+    <nav class="nav flex-column">
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="counter">
+                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="weather">
+                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
+            </NavLink>
+        </div>
+
+        @if (AuthState.IsAuthenticated)
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="mis-reservas">
+                    <span class="bi bi-calendar-event-fill" aria-hidden="true"></span> Mis reservas
+                </NavLink>
+            </div>
+
+            @if (AuthState.IsAdmin)
+            {
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="admin/usuarios">
+                        <span class="bi bi-people-fill" aria-hidden="true"></span> Admin/Usuarios
+                    </NavLink>
+                </div>
+            }
+
+            <div class="nav-item px-3">
+                <button class="nav-link btn btn-link" type="button" @onclick="LogoutAsync">
+                    <span class="bi bi-box-arrow-right" aria-hidden="true"></span> Cerrar sesión
+                </button>
+            </div>
+        }
+        else
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="login">
+                    <span class="bi bi-box-arrow-in-right" aria-hidden="true"></span> Iniciar sesión
+                </NavLink>
+            </div>
+        }
+    </nav>
+</div>
+
+@code {
+    [Inject]
+    private AuthState AuthState { get; set; } = default!;
+
+    [Inject]
+    private NavigationManager NavigationManager { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await AuthState.EnsureInitializedAsync();
+        AuthState.SessionChanged += OnSessionChanged;
+    }
+
+    private void OnSessionChanged()
+    {
+        _ = InvokeAsync(StateHasChanged);
+    }
+
+    private async Task LogoutAsync()
+    {
+        await AuthState.LogoutAsync();
+        NavigationManager.NavigateTo("/login", forceLoad: true);
+    }
+
+    public void Dispose()
+    {
+        AuthState.SessionChanged -= OnSessionChanged;
+    }
+}
